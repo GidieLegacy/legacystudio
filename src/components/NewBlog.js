@@ -15,6 +15,7 @@ import HeroSection from "../misc/heroSection";
 import {useCollection} from "react-firebase-hooks/firestore";
 import {db, storage, timeStamp} from '../firebase';
 import {CgClose} from "react-icons/cg";
+import ReactQuill from "react-quill";
 
 const NewBlog = () => {
     const [users, setUsers] = useCollection(db.collection("users"));
@@ -25,10 +26,41 @@ const NewBlog = () => {
     const [category, setCategory] = React.useState("1");
     const [selectedFile, setSelectedFile] = useState(null);
     const [title, setTitle] = useState('');
+    const [caseStudies, setCaseStudies] = useState('');
     const [content, setContent] = useState('');
     const [excerpt, setExcerpt] = useState('');
     const [authorName, setAuthorName] = useState('');
 
+    const modules = {
+        toolbar: [
+            [{ header: [1, 2, false] }],
+            ["bold", "italic", "underline", "strike", "blockquote"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link", "image"],
+            ["clean"],
+        ],
+        clipboard: {
+            // toggle to add extra clipboard sanitization
+            matchVisual: false,
+        },
+    };
+
+    const formats = [
+        "header",
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "blockquote",
+        "list",
+        "bullet",
+        "link",
+        "image",
+    ];
+
+    const handleContentChange = (value) => {
+        setContent(value);
+    }
     const handleFileInputChange = (event) => {
         setSelectedFile(event.target.files[0]);
     };
@@ -99,12 +131,12 @@ const NewBlog = () => {
                     <FormControl mt={"1%"}>
                         <FormLabel>Content</FormLabel>
                         <FormHelperText>Write your blog here</FormHelperText>
-                        <Textarea
+                        <ReactQuill
                             value={content}
-                            onChange={(event) => setContent(event.target.value)}
+                            onChange={setContent}
                             placeholder={"write you blog here..."}
-                            size={"lg"}
-                            required={true}
+                            modules={modules}
+                            formats={formats}
                         />
                     </FormControl>
                     <FormControl mt={"1%"}>
@@ -115,6 +147,11 @@ const NewBlog = () => {
                             })}
 
                         </Select>
+                    </FormControl>
+                    <FormControl mt={"2%"}>
+                        <FormLabel>Sub Title (Optional)</FormLabel>
+                        <FormHelperText>Required for Case Studies</FormHelperText>
+                        <Input type='text' value={caseStudies} onChange={(event) => setCaseStudies(event.target.value)} />
                     </FormControl>
                     {/*Submit button*/}
                     <Box mt={"5%"} width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -133,9 +170,10 @@ const NewBlog = () => {
                                 <Text fontSize={"20px"} p={"2% 0"} fontWeight={"bold"}>Category</Text>
                                 <RadioGroup onChange={setCategory} value={category}  p={"2%"}>
                                     <Stack direction='column'>
-                                        <Radio value='1'>Crypto/Forex News</Radio>
-                                        <Radio value='2'>Tech News</Radio>
-                                        <Radio value='3'>Blogs</Radio>
+                                        <Radio value='Crypto/Forex News'>Crypto/Forex News</Radio>
+                                        <Radio value='Tech News'>Tech News</Radio>
+                                        <Radio value='Blogs'>Blogs</Radio>
+                                        <Radio value='Case Studies'>Case Studies</Radio>
                                     </Stack>
                                 </RadioGroup>
                             </Box>

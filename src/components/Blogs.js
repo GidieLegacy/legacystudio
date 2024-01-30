@@ -5,6 +5,7 @@ import firebase from "firebase";
 import {db} from "../firebase";
 import {useCollection} from "react-firebase-hooks/firestore";
 import HeroSection from "../misc/heroSection";
+import {Helmet} from "react-helmet-async";
 
 const Blogs = () => {
     //fetch blogs from firebase use useCollection
@@ -22,6 +23,11 @@ const Blogs = () => {
     return (
 
         <Box mt={-110}>
+            <Helmet>
+                <title>News and Blogs | Legacy Studios</title>
+                <meta name="description" content="We offer a wide range of services that are suitable for all types of businesses. We offer POS systems for restaurants, POS systems for retail, POS systems for grocery stores, etc." />
+                <link rel={'canonical'} href={"/news-and-blogs"}/>
+            </Helmet>
             <HeroSection title={"News and Blogs"}/>
             <Flex>
                 <Box m={"2px"} border={"1px solid"} borderColor={"red.200"}>

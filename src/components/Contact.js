@@ -6,10 +6,17 @@ import {BsFillTelephoneOutboundFill} from "react-icons/bs";
 import {MdMarkEmailUnread} from "react-icons/md";
 import contact_us_logo from "../assets/contact-us.jpg";
 import ContactFormWithSocialButtons from "../utils/Form";
+import {Helmet} from "react-helmet-async";
 
 const Contact = () => {
     return (
         <Box mt={-110}>
+            <Helmet>
+                <title>Contact us | Legacys Studio</title>
+                <meta name="description"
+                      content="Legacy's Studio: IT solutions for businesses and individuals. Creative team of designers and developers ready to solve IT problems. Book a consultation to build together."/>
+                <link rel={'canonical'} href={"/contact-us"}/>
+            </Helmet>
             {/*Top Section*/}
             <Box h={"40vh"} bg={"blackAlpha.700"} w={"100%"} >
                 <Flex justifyContent={"center"} alignItems={"center"} h={"100%"} w={"100%"}>

@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 const Service = ({icon, title, subTitle, description, technologies, techImage, tooltip, id}) => {
     return (
 
-            <Card maxW='sm' boxShadow={"xl"} variant='outline' m={"1% 1% 0 1%"} pb={2} h={["480px","450px"]}>
+            <Card maxW='sm' boxShadow={"xl"} variant='outline' m={"1% 1% 0 1%"} pb={2} h={["480px","450px"]} flexGrow={1}>
                 <CardBody>
                     <Box h={"auto"} maxW={"400px"} >
                         <Box >

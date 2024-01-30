@@ -2,9 +2,9 @@ import React from 'react';
 import {Box, Flex, Icon, Link, Text} from "@chakra-ui/react";
 import {BiChevronRight} from "react-icons/bi";
 
-const HeroSection = ({title, subtitle, path}) => {
+const HeroSection = ({title, subtitle, path, bgImage}) => {
     return (
-        <Box h={"40vh"} bg={"blackAlpha.700"} w={"100%"} >
+        <Box h={"40vh"} bg={bgImage ? bgImage : "blackAlpha.700"} w={"100%"}>
             <Flex justifyContent={"center"} alignItems={"center"} h={"100%"} w={"100%"}>
                 <Box mt={["0", "5%"]} w={"100%"}>
                     <Flex w={"100%"} justifyContent={"center"}>

@@ -1,8 +1,9 @@
 import React from 'react';
 import {Box, Button, Card, Flex, Icon, Image, Text} from "@chakra-ui/react";
 import {AiOutlineArrowRight} from "react-icons/ai";
+import {Link} from "react-router-dom";
 
-const CaseStudies = ({image, title, description, icon, subTitle}) => {
+const CaseStudies = ({image, title, description, icon, subTitle, id}) => {
     return (
             <Card maxW='sm' boxShadow={"xl"} variant='outline' m={"1%"}>
                     <Box w={"100%"}>
@@ -30,7 +31,9 @@ const CaseStudies = ({image, title, description, icon, subTitle}) => {
                                 </Text>
                                 <Flex  p={"5% 0"} >
 
-                                    <Button background={"transparent"} color={"red.500"} pl={"0"} textTransform={"uppercase"} rightIcon={<AiOutlineArrowRight/>} >Read more</Button>
+                                    <Link to={`/case-studies/${id}`}>
+                                        <Button background={"transparent"} color={"red.500"} pl={"0"} textTransform={"uppercase"} rightIcon={<AiOutlineArrowRight/>} >Read more</Button>
+                                    </Link>
                                 </Flex>
                             </Box>
                         </Box>

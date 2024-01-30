@@ -1,14 +1,73 @@
 
-import {Box, Button, Flex, Image, Link, Stack, Text} from "@chakra-ui/react";
-import {useState} from "react";
+import {
+    Box,
+    Button,
+    Flex,
+    IconButton,
+    Image,
+    Link,
+    Popover, PopoverArrow, PopoverBody,
+    PopoverContent, PopoverHeader,
+    PopoverTrigger,
+    Stack,
+    Text
+} from "@chakra-ui/react";
+import {useEffect, useState} from "react";
 import ls_logo from "../assets/ls-logo.png";
+import {useAuthState} from "react-firebase-hooks/auth";
+import {auth, db} from "../firebase";
+import {MdNotifications} from "react-icons/md";
+import {useCollection} from "react-firebase-hooks/firestore";
 
 
 
-const Navbar = (props) => {
+const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [firebaseUser, loading, error] = useAuthState(auth);
+    const [requests, setRequests] = useState([]);
+    const [unreadRequests, setUnreadRequests] = useState(0);
+    const [formattedDate, setFormattedDate] = useState('');
+    const [showMore, setShowMore] = useState(false);
+    const [data, requestLoading, requestError] = useCollection(db.collection('projectRequests')
+        .where('viewed', '==', false));
+
+    const projectRequests = data ? data.docs.map((doc) => ({ id: doc.id, ...doc.data() })) : [];
 
     const toggle = () => setIsOpen(!isOpen);
+
+    const getRequests = async () => {
+        db.collection('projectRequests').onSnapshot((snapshot) => {
+            setRequests(snapshot.docs.map((doc) => doc.data()));
+            //count the number of requests whose viewed property is false
+             const unreadRequests = requests.filter((request) => request.viewed === false);
+             setUnreadRequests(unreadRequests.length);
+        }
+    )
+    }
+
+    useEffect(() => {
+        projectRequests.forEach((request) => {
+            const firebaseTimestamp = request.timestamp?.toDate();
+
+                if (firebaseTimestamp) {
+                const formattedDate = firebaseTimestamp.toLocaleDateString();
+                setFormattedDate(formattedDate);
+            }
+        });
+        getRequests();
+
+    }, [firebaseUser, data, requests]);
+
+    const handleReadMoreClick = (request) => {
+        setShowMore(!showMore);
+
+        if (!request.viewed) {
+            console.log('request', request.id);
+            db.collection('projectRequests').doc(request.id).update({
+                viewed: true,
+            }, {merge: true});
+        }
+    };
 
     return (
         <Flex
@@ -19,7 +78,7 @@ const Navbar = (props) => {
             wrap="wrap"
             pr={4}
             w="100%"
-            bg={["red.500", "red.500", "transparent", "transparent"]}
+            bg={["red.500", "red.500", "blackAlpha.700", "blackAlpha.700"]}
             color={["black", "black", "white", "white"]}
             borderBottom="1px solid"
             borderColor="gray"
@@ -28,13 +87,83 @@ const Navbar = (props) => {
 
 
             <Box  fontSize="3xl" color="blue.400" fontWeight="bold" h={"100%"}>
-                <Link href={"/"} color={"blue.400"}>
-                    <Image alt={"logo"} src={ls_logo} w={["250px", "300px"]} objectFit={"cover"} h={"90px"}/>
-                </Link>
+                <Flex justifyContent={"center"} alignItems={"center"}>
+                    <Link href={"/"} color={"blue.400"}>
+                        <Image alt={"logo"} src={ls_logo} w={["250px", "300px"]} objectFit={"cover"} h={"90px"}/>
+                    </Link>
+                    {firebaseUser != null && (
+                        <Popover>
+                            <PopoverTrigger>
+                                <Box position="relative">
+                                    <IconButton
+                                        size={"lg"}
+                                        aria-label="notification"
+                                        bg={"transparent"}
+                                        border={"1px solid white"}
+                                        color={"white"}
+                                        icon={<MdNotifications />}
+                                    />
+                                    <Text
+                                        position="absolute"
+                                        top="-2px"
+                                        right="-2px"
+                                        bg="red.500"
+                                        color="white"
+                                        borderRadius="full"
+                                        fontSize="sm"
+                                        fontWeight="bold"
+                                        px={2}
+                                        py={1}
+                                    >
+                                        {unreadRequests}
+                                    </Text>
+                                </Box>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <PopoverArrow />
+                                <PopoverHeader color={"red.500"} pt={4} fontSize={"16px"} borderBottom="1px">
+                                    All Requests
+                                </PopoverHeader>
+                                <PopoverBody>
+                                    {requestLoading && <p>Loading...</p>}
+                                    {projectRequests.length > 0 ? (
+                                        projectRequests.map((request) => (
+                                            <Box
+                                                key={request.id}
+                                                borderBottom={"1px"}
+                                                onClick={() => handleReadMoreClick(request)}
+                                                cursor="pointer"
+                                            >
+                                                <Flex justifyContent={"space-between"}>
+                                                    <Text color={request.viewed ? "blackAlpha.700" : "black"} fontSize={request.viewed ? "14px" : "15px"} fontWeight={"bold"}>
+                                                        {request.name}
+                                                    </Text>
+                                                    <Text color={request.viewed ? "blackAlpha.700" : "black"} fontSize={request.viewed ? "12px" : "13px"}>
+                                                        {request.timestamp?.toDate().toLocaleDateString()}
+                                                    </Text>
+                                                </Flex>
+
+                                                <Text overflow="hidden" maxH={showMore ? "none" : "45px"} color={request.viewed ? "blackAlpha.700" : "black"} fontSize={request.viewed ? "12px" : "sm"}>
+                                                    {request.message}
+                                                </Text>
+                                            </Box>
+                                        ))
+                                    ) : (
+                                        <Flex  justifyContent={"center"} alignItems={"center"}>
+                                            <Text fontSize={"14px"}>No requests yet</Text>
+                                        </Flex>
+                                    )}
+                                </PopoverBody>
+                            </PopoverContent>
+                        </Popover>
+                    )}
+
+                </Flex>
+
             </Box>
 
             <MenuToggle toggle={toggle} isOpen={isOpen} />
-            <MenuLinks isOpen={isOpen} />
+            <MenuLinks isLoggedIn={firebaseUser !== null} isOpen={isOpen} />
         </Flex>
     );
 };
@@ -78,7 +207,7 @@ const MenuItem = ({ children, isLast, to = "/", ...rest }) => {
     );
 };
 
-const MenuLinks = ({ isOpen }) => {
+const MenuLinks = ({ isOpen, isLoggedIn }) => {
     return (
         <Box
             display={{ base: isOpen ? "block" : "none", md: "block" }}
@@ -96,22 +225,48 @@ const MenuLinks = ({ isOpen }) => {
                 <MenuItem to="/">Home</MenuItem>
                 <MenuItem to="/about">About us</MenuItem>
                 <MenuItem to="/services">Services </MenuItem>
+                <MenuItem to="/projects">Projects </MenuItem>
                 <MenuItem to="/contact-us">Contact us </MenuItem>
                 <MenuItem to="/quote" isLast>
-                    <Button
-                        size="lg"
-                        borderRadius={"none"}
-                        color={"white"}
-                        mb={2}
-                        w={["100%", "auto"]}
-                        bg={["blue.400", "red.500"]}
-                        _hover={{
-                            bg: ["black.100", "black.100", "black.600", "black.600"]
-                        }}
-                    >
-                        Get a quote
-                    </Button>
+                    {isLoggedIn ? (
+                        <Link href="/manage-projects">
+                            <a>
+                                <Button
+                                    size="lg"
+                                    borderRadius={"none"}
+                                    color={"white"}
+                                    mb={2}
+                                    w={["100%", "auto"]}
+                                    bg={["blue.400", "red.500"]}
+                                    _hover={{
+                                        bg: ["black.100", "black.100", "black.600", "black.600"],
+                                    }}
+                                >
+                                    Manage Projects
+                                </Button>
+                            </a>
+                        </Link>
+                    ) : (
+                        <Link href="/quote">
+                            <a>
+                                <Button
+                                    size="lg"
+                                    borderRadius={"none"}
+                                    color={"white"}
+                                    mb={2}
+                                    w={["100%", "auto"]}
+                                    bg={["blue.400", "red.500"]}
+                                    _hover={{
+                                        bg: ["black.100", "black.100", "black.600", "black.600"],
+                                    }}
+                                >
+                                    Get a quote
+                                </Button>
+                            </a>
+                        </Link>
+                    )}
                 </MenuItem>
+
             </Stack>
         </Box>
     );

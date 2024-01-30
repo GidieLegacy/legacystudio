@@ -6,14 +6,16 @@ import {
     Stack,
     Heading,
     Text,
-    Container, Flex, Button,
+    Image,
+    Container, Flex, Button, Center,Carousel, CarouselProps,
 } from '@chakra-ui/react';
-// Here we have used react-icons package for the icons
+
+import SwiperCore, { Pagination, Navigation } from 'swiper/core';
 import { BiLeftArrowAlt, BiRightArrowAlt } from 'react-icons/bi';
-// And react-slick as our Carousel Lib
+
 import Slider from 'react-slick';
 import coding_bg from "../assets/coding.jpg";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 // Settings for the slider
 const settings = {
@@ -29,9 +31,15 @@ const settings = {
 };
 
 export default function CaptionCarousel() {
+
     // As we have used custom buttons, we need a reference variable to
     // change the state
     const [slider, setSlider] = useState(null);
+    const navigate = useNavigate();
+
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+
 
     // These are the breakpoints which changes the position of the
     // buttons as the screen size changes
@@ -48,7 +56,7 @@ export default function CaptionCarousel() {
             image:
                 'https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60',
             button_text: "Get a Quote",
-            button_link: "/contact",
+            button_link: "/quote",
         },
         {
             title: 'Learn Programming with Our Expert Instructors',
@@ -69,6 +77,15 @@ export default function CaptionCarousel() {
             button_link: "/trading",
         },
     ];
+    const [currentSlideTitle, setCurrentSlideTitle] = useState(cards[0].button_link);
+    const [cardButtonText, setCardButtonText] = useState(cards[0].button_text)
+    // Event handler for the afterChange event
+    const handleSlideChange = (index) => {
+        setCurrentSlide(index);
+        setCurrentSlideTitle(cards[index].button_link);
+        setCardButtonText(cards[index].button_text);
+
+    };
 
     return (
         <Box
@@ -92,7 +109,7 @@ export default function CaptionCarousel() {
             <IconButton
                 aria-label="left-arrow"
                 variant="ghost"
-                 position="absolute"
+                position="absolute"
                 left={side}
                 top={top}
                 transform={'translate(0%, -50%)'}
@@ -113,58 +130,69 @@ export default function CaptionCarousel() {
                 <BiRightArrowAlt size="40px" />
             </IconButton>
             {/* Slider */}
-            <Slider {...settings} ref={(slider) => setSlider(slider)}>
+            <Slider {...settings} ref={(slider) => setSlider(slider)} afterChange={handleSlideChange}>
 
-                    {cards.map((card, index) => (
-                        <Box
-                            key={index}
-                            height={'6xl'}
-                            position="relative"
-                            backgroundPosition="center"
-                            backgroundRepeat="no-repeat"
-                            backgroundSize="cover"
-                            backgroundImage={`linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${card.image})`}
+                {cards.map((card, index) => (
+                    <Box
+                        key={index}
+                        height={'6xl'}
+                        position="relative"
+                        backgroundPosition="center"
+                        backgroundRepeat="no-repeat"
+                        backgroundSize="cover"
+                        backgroundImage={`linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${card.image})`}
 
-                        >
-                            {/* This is the block you need to change, to customize the caption */}
-                            <Container size="container.lg" height="600px" position="relative" left={["0","-20%"]} >{/**/}
-                                <Stack
-                                    spacing={6}
-                                    w={'full'}
-                                    maxW={'lg'}
-                                    position="absolute"
-                                    top="50%"
-                                    transform="translate(0, -50%)"
-                                >
-                                    <Box maxW={"500px"} display={"flex"} justifyContent={["center", "flex-start"]} alignItems={["center", "flex-start"]} mt={"10%"}>
-                                        <Box>
-                                            <Flex justifyContent={["center", "flex-start"]}>
-                                                <Heading color={"white"} fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }} mb={"5%"} textAlign={["center", "left"]}>
-                                                    {card.title}
-                                                </Heading>
-                                            </Flex>
+                    >
 
-                                            <Flex justifyContent={["center", "flex-start"]}>
+                        {/* This is the block you need to change, to customize the caption */}
+                        <Container size="container.lg" height="600px" position="relative" left={["0","-20%"]} >
+                            <Stack
+                                spacing={6}
+                                w={'full'}
+                                maxW={'lg'}
+                                position="absolute"
+                                top="50%"
+                                transform="translate(0, -50%)"
+                            >
+                                <Box maxW={"500px"} display={"flex"} justifyContent={["center", "flex-start"]} alignItems={["center", "flex-start"]} mt={"10%"}>
+                                    <Box>
+                                        <Flex justifyContent={["center", "flex-start"]}>
+                                            <Heading onClick={() => navigate(card.button_link)} color={"white"} fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }} mb={"5%"} textAlign={["center", "left"]}>
+                                                {card.title} <strong style={{display: "none"}}>- {card.button_link}</strong>
+                                            </Heading>
+                                        </Flex>
+
+                                        <Flex justifyContent={["center", "flex-start"]}>
                                             <Text color={"white"} fontSize={{ base: 'md', lg: 'lg' }} mb={"5%"} textAlign={["center", "left"]}>
                                                 {card.text}
                                             </Text>
-                                            </Flex>
+                                        </Flex>
 
-                                            <Flex justifyContent={["center", "flex-start"]}>
-
-                                                <Button as={Link} to={card.button_link} textTransform={"uppercase"} borderRadius={"none"} background={"red.500"} p={"lg"} color={"white"}>{card.button_text}</Button>
-
-                                            </Flex>
-                                        </Box>
-
+                                        <Flex justifyContent={["center", "flex-start"]}>
+                                            <Link to={currentSlideTitle}>
+                                                <Button
+                                                    textTransform="uppercase"
+                                                    borderRadius="none"
+                                                    bg="red.500"
+                                                    p="lg"
+                                                    color="white"
+                                                >
+                                                    {card.button_text}
+                                                </Button>
+                                            </Link>
+                                        </Flex>
                                     </Box>
 
-                                </Stack>
-                            </Container>
-                        </Box>
-                    ))}
-                </Slider>
+                                </Box>
+
+                            </Stack>
+                        </Container>
+                    </Box>
+                ))}
+            </Slider>
 
         </Box>
     );
 }
+
+

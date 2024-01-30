@@ -2,10 +2,17 @@ import React from 'react';
 import {Box, Button, Circle, Flex, Icon, Link, Text} from "@chakra-ui/react";
 import {BiChevronRight} from "react-icons/bi";
 import Contact from "../utils/ContactForm";
+import {Helmet} from "react-helmet-async";
 
 const About = () => {
     return (
         <Box mt={-110}>
+            <Helmet>
+                <title>About us | Legacys Studio</title>
+                <meta name="description"
+                      content="Legacy's Studio: IT solutions for businesses and individuals. Creative team of designers and developers ready to solve IT problems. Book a consultation to build together."/>
+                <link rel={'canonical'} href={"/"}/>
+            </Helmet>
             {/*Top Section*/}
             <Box h={"40vh"} bg={"blackAlpha.700"} w={"100%"}>
                 <Flex justifyContent={"center"} alignItems={"center"} h={"100%"} w={"100%"}>
